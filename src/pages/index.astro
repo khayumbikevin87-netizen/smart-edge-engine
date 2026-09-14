@@ -1,0 +1,1212 @@
+---
+const title = "Smart Edge Engine V4";
+---
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{title}</title>
+
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 12px;
+      background: #07101f;
+      color: #f8fafc;
+      font-family: Arial, sans-serif;
+    }
+
+    .app {
+      max-width: 950px;
+      margin: auto;
+    }
+
+    h1 {
+      margin: 5px 0;
+      font-size: 24px;
+    }
+
+    .sub {
+      color: #94a3b8;
+      font-size: 12px;
+      margin-bottom: 12px;
+    }
+
+    .panel {
+      background: #111c2f;
+      border: 1px solid #263650;
+      border-radius: 14px;
+      padding: 13px;
+      margin-bottom: 12px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 9px;
+    }
+
+    .grid3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .card {
+      background: #0a1425;
+      border-radius: 10px;
+      padding: 11px;
+    }
+
+    .label {
+      color: #94a3b8;
+      font-size: 11px;
+    }
+
+    .value {
+      font-size: 21px;
+      font-weight: bold;
+      margin-top: 4px;
+    }
+
+    select,
+    input,
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 7px;
+      border: 0;
+      border-radius: 9px;
+      font-size: 15px;
+    }
+
+    select,
+    input {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    button {
+      background: #2563eb;
+      color: white;
+      font-weight: bold;
+    }
+
+    button.red {
+      background: #dc2626;
+    }
+
+    button.green {
+      background: #16a34a;
+    }
+
+    button.orange {
+      background: #d97706;
+    }
+
+    button:disabled {
+      opacity: .5;
+    }
+
+    .status {
+      margin-top: 9px;
+      padding: 10px;
+      border-radius: 8px;
+      background: #17243a;
+      font-weight: bold;
+    }
+
+    .signal {
+      font-size: 23px;
+      font-weight: bold;
+      color: #facc15;
+    }
+
+    .reason {
+      margin-top: 7px;
+      color: #cbd5e1;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .digits {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 6px;
+      margin-top: 9px;
+    }
+
+    .digit {
+      background: #0a1425;
+      border-radius: 8px;
+      padding: 8px 3px;
+      text-align: center;
+    }
+
+    .digit strong {
+      display: block;
+      font-size: 18px;
+    }
+
+    .digit small {
+      font-size: 10px;
+      color: #cbd5e1;
+    }
+
+    .greenText { color: #22c55e; }
+    .redText { color: #ef4444; }
+    .yellowText { color: #facc15; }
+
+    #log {
+      height: 140px;
+      overflow-y: auto;
+      background: #020617;
+      border-radius: 8px;
+      padding: 9px;
+      font-size: 10px;
+      color: #94a3b8;
+      white-space: pre-wrap;
+    }
+
+    #chart {
+      width: 100%;
+      height: 160px;
+      background: #07101f;
+      border-radius: 9px;
+    }
+
+    .tradeReady {
+      color: #22c55e;
+      font-weight: bold;
+    }
+
+    .tradeLocked {
+      color: #ef4444;
+      font-weight: bold;
+    }
+
+    @media(max-width:600px) {
+      .grid3 {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<main class="app">
+
+  <h1>Smart Edge Engine V4</h1>
+  <div class="sub">
+    Live analysis • Strong setups • Trade engine foundation
+  </div>
+
+  <!-- MARKET -->
+  <section class="panel">
+
+    <div class="label">Market</div>
+
+    <select id="market">
+      <option value="1HZ100V">Volatility 100 (1s)</option>
+      <option value="1HZ75V">Volatility 75 (1s)</option>
+      <option value="1HZ50V">Volatility 50 (1s)</option>
+      <option value="1HZ25V">Volatility 25 (1s)</option>
+      <option value="1HZ10V">Volatility 10 (1s)</option>
+    </select>
+
+    <button id="connect">CONNECT MARKET</button>
+    <button id="disconnect" class="red">DISCONNECT</button>
+
+    <div id="connectionStatus" class="status">
+      NOT CONNECTED
+    </div>
+
+  </section>
+
+  <!-- TRADE SETTINGS -->
+  <section class="panel">
+
+    <div class="label">TRADE SETTINGS</div>
+
+    <div class="grid3">
+
+      <div class="card">
+        <div class="label">Stake ($)</div>
+        <input
+          id="stake"
+          type="number"
+          min="0.35"
+          step="0.01"
+          value="0.35"
+        />
+      </div>
+
+      <div class="card">
+        <div class="label">Maximum Stake ($)</div>
+        <input
+          id="maxStake"
+          type="number"
+          min="0.35"
+          step="0.01"
+          value="2.50"
+        />
+      </div>
+
+      <div class="card">
+        <div class="label">Trading Mode</div>
+        <select id="mode">
+          <option value="ANALYSIS">ANALYSIS ONLY</option>
+          <option value="DEMO">DEMO TRADING</option>
+          <option value="LIVE">LIVE TRADING</option>
+        </select>
+      </div>
+
+    </div>
+
+    <button id="tradeToggle" class="orange">
+      TRADING OFF
+    </button>
+
+    <div id="tradeStatus" class="status tradeLocked">
+      TRADING LOCKED
+    </div>
+
+  </section>
+
+  <!-- LIVE DATA -->
+  <section class="panel">
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="label">Price</div>
+        <div class="value" id="price">---</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Last Digit</div>
+        <div class="value" id="lastDigit">-</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Market Strength</div>
+        <div class="value" id="strength">0%</div>
+      </div>
+
+      <div class="card">
+        <div class="label">State</div>
+        <div class="value" id="state">WAIT</div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- SIGNAL -->
+  <section class="panel">
+
+    <div class="label">CURRENT SIGNAL</div>
+
+    <div id="signal" class="signal">
+      WAIT
+    </div>
+
+    <div id="reason" class="reason">
+      Waiting for live market data.
+    </div>
+
+  </section>
+
+  <!-- SIDES -->
+  <section class="panel">
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="label">UPPER 0–4</div>
+        <div id="upper" class="value">0%</div>
+      </div>
+
+      <div class="card">
+        <div class="label">LOWER 5–9</div>
+        <div id="lower" class="value">0%</div>
+      </div>
+
+      <div class="card">
+        <div class="label">EVEN</div>
+        <div id="even" class="value">0%</div>
+      </div>
+
+      <div class="card">
+        <div class="label">ODD</div>
+        <div id="odd" class="value">0%</div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- DIGITS -->
+  <section class="panel">
+
+    <div class="label">
+      INDIVIDUAL DIGIT STRENGTH
+    </div>
+
+    <div id="digits" class="digits"></div>
+
+  </section>
+
+  <!-- CONFIRMATION -->
+  <section class="panel">
+
+    <div class="label">CONFIRMATION ENGINE</div>
+
+    <div class="grid">
+
+      <div class="card">
+        <div class="label">OVER 2</div>
+        <div id="over2" class="value">WAIT</div>
+      </div>
+
+      <div class="card">
+        <div class="label">UNDER 7</div>
+        <div id="under7" class="value">WAIT</div>
+      </div>
+
+      <div class="card">
+        <div class="label">DIFFER</div>
+        <div id="differ" class="value">WAIT</div>
+      </div>
+
+      <div class="card">
+        <div class="label">EVEN / ODD</div>
+        <div id="evenodd" class="value">WAIT</div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- STATS -->
+  <section class="panel">
+
+    <div class="label">TRADE STATISTICS</div>
+
+    <div class="grid3">
+
+      <div class="card">
+        <div class="label">Trades</div>
+        <div id="trades" class="value">0</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Wins</div>
+        <div id="wins" class="value greenText">0</div>
+      </div>
+
+      <div class="card">
+        <div class="label">Losses</div>
+        <div id="losses" class="value redText">0</div>
+      </div>
+
+    </div>
+
+  </section>
+
+  <!-- CURVE -->
+  <section class="panel">
+
+    <div class="label">LIVE MOVEMENT</div>
+
+    <canvas id="chart" width="900" height="160"></canvas>
+
+  </section>
+
+  <!-- LOG -->
+  <section class="panel">
+
+    <div class="label">ENGINE LOG</div>
+
+    <div id="log">Smart Edge Engine V4 ready.</div>
+
+  </section>
+
+</main>
+
+<script>
+
+const DERIV_URL =
+  "wss://api.derivws.com/trading/v1/options/ws/public";
+
+let socket = null;
+let manualDisconnect = false;
+
+let ticks = [];
+let prices = [];
+
+let lastDigit = null;
+let previousDigit = null;
+let sameDigitCount = 0;
+
+let tradingEnabled = false;
+
+let trades = 0;
+let wins = 0;
+let losses = 0;
+
+let currentSignal = "WAIT";
+
+const $ = id => document.getElementById(id);
+
+function log(message) {
+
+  const time =
+    new Date().toLocaleTimeString();
+
+  $("log").textContent +=
+    `\n[${time}] ${message}`;
+
+  $("log").scrollTop =
+    $("log").scrollHeight;
+}
+
+function setConnection(text) {
+  $("connectionStatus").textContent = text;
+}
+
+function getDigit(quote) {
+
+  const clean =
+    String(quote)
+      .replace(/[^0-9]/g, "");
+
+  if (!clean.length) return null;
+
+  return Number(
+    clean[clean.length - 1]
+  );
+}
+
+function pct(value, total) {
+
+  if (!total) return 0;
+
+  return Math.round(
+    (value / total) * 100
+  );
+}
+
+function renderDigits() {
+
+  const counts =
+    Array(10).fill(0);
+
+  ticks.forEach(d => {
+    counts[d]++;
+  });
+
+  const total =
+    ticks.length;
+
+  $("digits").innerHTML =
+    counts.map((count, digit) => {
+
+      const p =
+        pct(count, total);
+
+      let cls =
+        "yellowText";
+
+      if (p >= 15)
+        cls = "greenText";
+
+      if (p <= 5)
+        cls = "redText";
+
+      return `
+        <div class="digit">
+          <strong class="${cls}">
+            ${digit}
+          </strong>
+          <small>
+            ${p}%
+          </small>
+        </div>
+      `;
+
+    }).join("");
+}
+
+function drawChart() {
+
+  const canvas =
+    $("chart");
+
+  const ctx =
+    canvas.getContext("2d");
+
+  ctx.clearRect(
+    0,
+    0,
+    canvas.width,
+    canvas.height
+  );
+
+  if (prices.length < 2)
+    return;
+
+  const min =
+    Math.min(...prices);
+
+  const max =
+    Math.max(...prices);
+
+  const range =
+    max - min || 1;
+
+  ctx.beginPath();
+
+  prices.forEach((price, i) => {
+
+    const x =
+      i /
+      (prices.length - 1) *
+      canvas.width;
+
+    const y =
+      canvas.height -
+      (
+        (price - min) /
+        range
+      ) *
+      (canvas.height - 20) -
+      10;
+
+    if (i === 0)
+      ctx.moveTo(x, y);
+    else
+      ctx.lineTo(x, y);
+
+  });
+
+  ctx.strokeStyle =
+    "#38bdf8";
+
+  ctx.lineWidth = 2;
+
+  ctx.stroke();
+}
+
+function analyze() {
+
+  if (ticks.length < 30) {
+
+    currentSignal =
+      "COLLECTING DATA";
+
+    $("signal").textContent =
+      currentSignal;
+
+    $("reason").textContent =
+      `Collecting market history: ${ticks.length}/30 ticks`;
+
+    return;
+  }
+
+  const short =
+    ticks.slice(-20);
+
+  const medium =
+    ticks.slice(-50);
+
+  const upperShort =
+    short.filter(d => d <= 4).length;
+
+  const lowerShort =
+    short.filter(d => d >= 5).length;
+
+  const upperMedium =
+    medium.filter(d => d <= 4).length;
+
+  const lowerMedium =
+    medium.filter(d => d >= 5).length;
+
+  const even =
+    short.filter(d => d % 2 === 0).length;
+
+  const odd =
+    short.filter(d => d % 2 !== 0).length;
+
+  const upperScore =
+    pct(upperShort, short.length);
+
+  const lowerScore =
+    pct(lowerShort, short.length);
+
+  const upperMediumScore =
+    pct(upperMedium, medium.length);
+
+  const lowerMediumScore =
+    pct(lowerMedium, medium.length);
+
+  const evenScore =
+    pct(even, short.length);
+
+  const oddScore =
+    pct(odd, short.length);
+
+  $("upper").textContent =
+    `${upperScore}%`;
+
+  $("lower").textContent =
+    `${lowerScore}%`;
+
+  $("even").textContent =
+    `${evenScore}%`;
+
+  $("odd").textContent =
+    `${oddScore}%`;
+
+  const strength =
+    Math.max(
+      Math.abs(upperScore - 50),
+      Math.abs(lowerScore - 50),
+      Math.abs(evenScore - 50),
+      Math.abs(oddScore - 50)
+    ) * 2;
+
+  $("strength").textContent =
+    `${Math.round(strength)}%`;
+
+  let signal =
+    "WAIT";
+
+  let reason =
+    "No strong confirmed setup.";
+
+  let state =
+    "WAIT";
+
+  /*
+    OVER 2
+    Strong upper-side conditions.
+    Confirmation = digit 0 or 1.
+  */
+
+  const over2Setup =
+    upperScore >= 65 &&
+    upperMediumScore >= 55;
+
+  if (over2Setup) {
+
+    state =
+      "OVER 2 WATCH";
+
+    $("over2").textContent =
+      "WATCH";
+
+    if (
+      lastDigit === 0 ||
+      lastDigit === 1
+    ) {
+
+      signal =
+        "OVER 2 CONFIRMED";
+
+      reason =
+        "Under 2 trigger detected. OVER 2 entry is intended for the NEXT tick.";
+
+      $("over2").textContent =
+        "CONFIRMED";
+
+    } else {
+
+      reason =
+        "Strong OVER 2 setup. Waiting for digit 0 or 1.";
+
+    }
+
+  } else {
+
+    $("over2").textContent =
+      "WAIT";
+
+  }
+
+  /*
+    UNDER 7
+    Strong lower-side conditions.
+    Confirmation = digit 8 or 9.
+  */
+
+  const under7Setup =
+    lowerScore >= 65 &&
+    lowerMediumScore >= 55;
+
+  if (under7Setup) {
+
+    state =
+      "UNDER 7 WATCH";
+
+    $("under7").textContent =
+      "WATCH";
+
+    if (
+      lastDigit === 8 ||
+      lastDigit === 9
+    ) {
+
+      signal =
+        "UNDER 7 CONFIRMED";
+
+      reason =
+        "Over 7 trigger detected. UNDER 7 entry is intended for the NEXT tick.";
+
+      $("under7").textContent =
+        "CONFIRMED";
+
+    } else {
+
+      reason =
+        "Strong UNDER 7 setup. Waiting for digit 8 or 9.";
+
+    }
+
+  } else {
+
+    $("under7").textContent =
+      "WAIT";
+
+  }
+
+  /*
+    DIFFER
+    Same digit twice consecutively.
+  */
+
+  if (
+    previousDigit !== null &&
+    previousDigit === lastDigit
+  ) {
+
+    sameDigitCount++;
+
+  } else {
+
+    sameDigitCount = 1;
+
+  }
+
+  if (sameDigitCount >= 2) {
+
+    signal =
+      "DIFFER TRIGGER";
+
+    state =
+      "DIFFER WATCH";
+
+    reason =
+      `Digit ${lastDigit} appeared twice consecutively. DIFFER trigger detected.`;
+
+    $("differ").textContent =
+      "TRIGGER";
+
+  } else {
+
+    $("differ").textContent =
+      "WAIT";
+
+  }
+
+  /*
+    EVEN / ODD
+  */
+
+  if (
+    evenScore >= 65 &&
+    evenScore > oddScore + 12
+  ) {
+
+    $("evenodd").textContent =
+      "EVEN WATCH";
+
+    if (signal === "WAIT") {
+
+      signal =
+        "EVEN WATCH";
+
+      reason =
+        "Strong recent Even dominance. Waiting for further confirmation.";
+
+    }
+
+  } else if (
+    oddScore >= 65 &&
+    oddScore > evenScore + 12
+  ) {
+
+    $("evenodd").textContent =
+      "ODD WATCH";
+
+    if (signal === "WAIT") {
+
+      signal =
+        "ODD WATCH";
+
+      reason =
+        "Strong recent Odd dominance. Waiting for further confirmation.";
+
+    }
+
+  } else {
+
+    $("evenodd").textContent =
+      "WAIT";
+
+  }
+
+  currentSignal =
+    signal;
+
+  $("signal").textContent =
+    signal;
+
+  $("state").textContent =
+    state;
+
+  $("reason").textContent =
+    reason;
+
+  /*
+    IMPORTANT:
+    This function does NOT buy yet.
+    The authenticated trading connection
+    will be connected in the next stage.
+  */
+
+}
+
+function processTick(quote) {
+
+  const digit =
+    getDigit(quote);
+
+  if (digit === null)
+    return;
+
+  previousDigit =
+    lastDigit;
+
+  lastDigit =
+    digit;
+
+  ticks.push(digit);
+
+  prices.push(
+    Number(quote)
+  );
+
+  if (ticks.length > 100)
+    ticks.shift();
+
+  if (prices.length > 100)
+    prices.shift();
+
+  $("price").textContent =
+    quote;
+
+  $("lastDigit").textContent =
+    digit;
+
+  renderDigits();
+
+  drawChart();
+
+  analyze();
+
+}
+
+function connectMarket() {
+
+  manualDisconnect =
+    false;
+
+  if (socket) {
+
+    try {
+      socket.close();
+    } catch {}
+
+  }
+
+  ticks = [];
+  prices = [];
+  lastDigit = null;
+  previousDigit = null;
+  sameDigitCount = 0;
+
+  setConnection(
+    "CONNECTING..."
+  );
+
+  log(
+    "Connecting to Deriv public market feed..."
+  );
+
+  socket =
+    new WebSocket(
+      DERIV_URL
+    );
+
+  socket.onopen =
+    () => {
+
+      setConnection(
+        "LIVE"
+      );
+
+      log(
+        "Market connection established."
+      );
+
+      const market =
+        $("market").value;
+
+      socket.send(
+        JSON.stringify({
+          ticks: market,
+          subscribe: 1
+        })
+      );
+
+      log(
+        `Subscribed to ${market}`
+      );
+
+    };
+
+  socket.onmessage =
+    event => {
+
+      try {
+
+        const data =
+          JSON.parse(
+            event.data
+          );
+
+        if (data.error) {
+
+          log(
+            "DERIV ERROR: " +
+            JSON.stringify(
+              data.error
+            )
+          );
+
+          return;
+
+        }
+
+        if (
+          data.msg_type ===
+          "tick"
+        ) {
+
+          processTick(
+            data.tick.quote
+          );
+
+        }
+
+      } catch(error) {
+
+        log(
+          "Message error: " +
+          error.message
+        );
+
+      }
+
+    };
+
+  socket.onerror =
+    () => {
+
+      setConnection(
+        "CONNECTION ERROR"
+      );
+
+      log(
+        "WebSocket error."
+      );
+
+    };
+
+  socket.onclose =
+    () => {
+
+      if (!manualDisconnect) {
+
+        setConnection(
+          "DISCONNECTED"
+        );
+
+        log(
+          "Market connection closed."
+        );
+
+      }
+
+    };
+
+}
+
+function disconnectMarket() {
+
+  manualDisconnect =
+    true;
+
+  if (socket) {
+
+    try {
+      socket.close();
+    } catch {}
+
+  }
+
+  setConnection(
+    "DISCONNECTED"
+  );
+
+  log(
+    "Market manually disconnected."
+  );
+
+}
+
+function toggleTrading() {
+
+  const mode =
+    $("mode").value;
+
+  if (mode === "ANALYSIS") {
+
+    tradingEnabled =
+      false;
+
+    $("tradeToggle").textContent =
+      "TRADING OFF";
+
+    $("tradeToggle").className =
+      "orange";
+
+    $("tradeStatus").textContent =
+      "TRADING LOCKED — ANALYSIS ONLY";
+
+    $("tradeStatus").className =
+      "status tradeLocked";
+
+    log(
+      "Trading remains disabled in Analysis mode."
+    );
+
+    return;
+
+  }
+
+  tradingEnabled =
+    !tradingEnabled;
+
+  if (tradingEnabled) {
+
+    $("tradeToggle").textContent =
+      "TRADING ON";
+
+    $("tradeToggle").className =
+      "green";
+
+    $("tradeStatus").textContent =
+      `${mode} TRADING ARMED — EXECUTION CONNECTION REQUIRED`;
+
+    $("tradeStatus").className =
+      "status tradeReady";
+
+    log(
+      `${mode} trading armed.`
+    );
+
+  } else {
+
+    $("tradeToggle").textContent =
+      "TRADING OFF";
+
+    $("tradeToggle").className =
+      "orange";
+
+    $("tradeStatus").textContent =
+      "TRADING LOCKED";
+
+    $("tradeStatus").className =
+      "status tradeLocked";
+
+    log(
+      "Trading disabled."
+    );
+
+  }
+
+}
+
+$("connect")
+  .addEventListener(
+    "click",
+    connectMarket
+  );
+
+$("disconnect")
+  .addEventListener(
+    "click",
+    disconnectMarket
+  );
+
+$("tradeToggle")
+  .addEventListener(
+    "click",
+    toggleTrading
+  );
+
+$("mode")
+  .addEventListener(
+    "change",
+    () => {
+
+      tradingEnabled =
+        false;
+
+      $("tradeToggle").textContent =
+        "TRADING OFF";
+
+      $("tradeToggle").className =
+        "orange";
+
+      $("tradeStatus").textContent =
+        "TRADING LOCKED";
+
+      $("tradeStatus").className =
+        "status tradeLocked";
+
+    }
+  );
+
+renderDigits();
+
+</script>
+
+</body>
+</html>
