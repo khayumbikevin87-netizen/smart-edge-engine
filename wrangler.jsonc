@@ -3,6 +3,9 @@
   "name": "smart-edge-engine",
   "main": "worker/index.js",
   "compatibility_date": "2026-09-14",
+  "compatibility_flags": [
+    "nodejs_compat"
+  ],
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist"
